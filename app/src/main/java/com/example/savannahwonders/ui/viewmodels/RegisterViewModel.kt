@@ -15,9 +15,9 @@ import javax.inject.Inject
 class RegisterViewModel @Inject constructor(private val repository: AuthRepository): ViewModel() {
     val _registerState = Channel<SignInState>()
     var registerState = _registerState.receiveAsFlow()
-    fun registerUser(email: String, password: String){
+    fun registerUser(email: String, password: String, name: String){
         viewModelScope.launch {
-            repository.registerUser(email, password).collect{result ->
+            repository.registerUser(email, password, name).collect{result ->
                 when (result){
                     is Resource.Success -> {
                         _registerState.send(SignInState(isSuccess = "Register Successful"))

@@ -6,21 +6,40 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.sharp.Close
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
@@ -37,21 +56,27 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.savannahwonders.MainActivity
+import com.example.savannahwonders.data.temp.Destination
+import com.example.savannahwonders.data.temp.TempData
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
 import com.example.savannahwonders.ui.viewmodels.RegisterViewModel
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
@@ -74,6 +99,16 @@ class HomeActivity : ComponentActivity() {
                             registerViewModel.logOut()
                             startActivity(Intent(this, MainActivity::class.java))
                             finish()
+                        },
+                        onSearchClick = {
+                            // TODO: Launch Search screen
+                        },
+                        onHomeClick = {
+
+                        },
+                        onFavoritesClick = {
+                            startActivity(Intent(this, FavoritesActivity::class.java))
+                            finish()
                         }
                     )
                 }
@@ -86,11 +121,16 @@ class HomeActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenActivity(
-    modifier: Modifier = Modifier,
-    onLogOut: ()-> Unit
+    onLogOut: ()-> Unit,
+    onFavoritesClick: () -> Unit,
+    onHomeClick: () -> Unit,
+    onSearchClick: () -> Unit
 ){
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    var isActive: Int by rememberSaveable {
+        mutableStateOf(1)
+    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -129,6 +169,23 @@ fun HomeScreenActivity(
                     .height(40.dp)
             )
         },
+        bottomBar = {
+            BottomAppBar(
+                onFavoritesClick = {
+                    onFavoritesClick()
+                    isActive = 1
+                },
+                onHomeClick = {
+                    onHomeClick()
+                    isActive = 2
+                },
+                onSearchClick = {
+                    onSearchClick()
+                    isActive = 3
+                },
+                isActive = isActive
+            )
+        }
     ) {
         ModalNavigationDrawer(
             drawerState = drawerState,
@@ -188,11 +245,172 @@ fun HomeScreenActivity(
 
 @Composable
 fun HomeScreen() {
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .padding(top = 50.dp)
     ) {
-        Text(text = "This is the home screen")
+        Box{
+            LazyColumn{
+                items(TempData.listOfDestinations){ item: Destination ->
+                    Surface(
+                        tonalElevation = 2.dp,
+                        shape = RoundedCornerShape(20.dp),
+                        shadowElevation = 10.dp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ){
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Image(
+                                painter = painterResource(id = item.image),
+                                contentDescription = "Destination Image",
+                                modifier = Modifier
+                                    .size(80.dp)
+                            )
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                            ) {
+                                Text(text = item.name)
+                                Text(text = "Ksh. ${item.price}")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun BottomAppBar(
+    onSearchClick: ()->Unit,
+    onFavoritesClick: ()->Unit,
+    onHomeClick: ()->Unit,
+    isActive: Int
+) {
+    var homeIcon: ImageVector by remember {
+        mutableStateOf(Icons.Default.Home)
+    }
+    var searchIcon: ImageVector by remember {
+        mutableStateOf(Icons.Default.Search)
+    }
+    var favoritesIcon: ImageVector by remember {
+        mutableStateOf(Icons.Default.FavoriteBorder)
+    }
+    when (isActive) {
+        1 -> {
+            homeIcon = Icons.Filled.Home
+            searchIcon = Icons.Outlined.Search
+            favoritesIcon = Icons.Outlined.FavoriteBorder
+        }
+        2 -> {
+            homeIcon = Icons.Outlined.Home
+            searchIcon = Icons.Filled.Search
+            favoritesIcon = Icons.Outlined.FavoriteBorder
+        }
+        3 -> {
+            homeIcon = Icons.Outlined.Home
+            searchIcon = Icons.Outlined.Search
+            favoritesIcon = Icons.Filled.Favorite
+        }
+    }
+    androidx.compose.material3.BottomAppBar(
+        windowInsets = WindowInsets.navigationBars,
+        contentPadding = PaddingValues(horizontal = 2.dp),
+        tonalElevation = 2.dp,
+        modifier = Modifier
+            .height(50.dp)
+            .fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            IconButton(
+                onClick = {
+                    onHomeClick()
+                },
+                modifier = Modifier
+                    .size(55.dp)
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+
+                    Icon(
+                        imageVector = homeIcon,
+                        contentDescription = "Home Icon",
+                        modifier = Modifier
+                            .size(27.dp)
+                    )
+                    Text(
+                        text = "Home",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+
+            }
+            IconButton(
+                onClick = {
+                    onSearchClick()
+                },
+                modifier = Modifier
+                    .size(55.dp)
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+
+                    Icon(
+                        imageVector = searchIcon,
+                        contentDescription = "Search Icon",
+                        modifier = Modifier
+                            .size(27.dp)
+                    )
+                    Text(
+                        text = "Search",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+
+            }
+            IconButton(
+                onClick = {
+                    onFavoritesClick()
+                },
+                modifier = Modifier
+                    .size(55.dp)
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                ) {
+
+                    Icon(
+                        imageVector = favoritesIcon,
+                        contentDescription = "Favorites Icon",
+                        modifier = Modifier
+                            .size(27.dp)
+                    )
+                    Text(
+                        text = "Favorites",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+
+            }
+        }
     }
 }
 
@@ -217,8 +435,8 @@ val menuItems: List<MenuItem> = listOf(
     ),
     MenuItem(
         id = 3,
-        title = "Wishlist",
-        icon = Icons.Default.List,
+        title = "Favorites",
+        icon = Icons.Default.Favorite,
         description = "Cart Icon"
     ),
     MenuItem(
@@ -229,10 +447,15 @@ val menuItems: List<MenuItem> = listOf(
     )
 )
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun GreetingPreview2() {
+fun HomeScreenActivityPreview() {
     SavannahWondersTheme {
-//        HomeScreenActivity()
+        HomeScreenActivity (
+            onLogOut = {},
+            onFavoritesClick = {},
+            onHomeClick = {},
+            onSearchClick = {}
+        )
     }
 }

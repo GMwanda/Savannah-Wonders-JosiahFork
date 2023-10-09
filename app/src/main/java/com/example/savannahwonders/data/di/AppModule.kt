@@ -3,6 +3,8 @@ package com.example.savannahwonders.data.di
 import com.example.savannahwonders.data.auth.AuthRepository
 import com.example.savannahwonders.data.auth.DefaultAuthRespository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
@@ -17,10 +19,13 @@ object AppModule {
     @Provides
     @Singleton
     fun providesFirebaseAuth() = FirebaseAuth.getInstance()
+    @Provides
+    @Singleton
+    fun providesFirebaseRealtimeDatabase() = Firebase.database
 
     @Provides
     @Singleton
-    fun providesDefaultRepo(firebaseAuth: FirebaseAuth) :AuthRepository{
-        return DefaultAuthRespository(firebaseAuth)
+    fun providesDefaultRepo(firebaseAuth: FirebaseAuth, database: FirebaseDatabase) :AuthRepository{
+        return DefaultAuthRespository(firebaseAuth, database)
     }
 }
