@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -33,14 +35,21 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.activity
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.savannahwonders.ui.activities.HomeActivity
 import com.example.savannahwonders.ui.activities.LoginActivity
+import com.example.savannahwonders.ui.activities.LoginScreen
 import com.example.savannahwonders.ui.activities.RegisterActivity
+import com.example.savannahwonders.ui.activities.RegisterScreen
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -89,6 +98,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+enum class ScreenNames{
+    LOGINSCREEN,
+    REGISTRATIONSCREEN,
+    SPLASHSCREEN,
+    HOMESCREEN,
+    FAVORITESSCREEN
+}
+
 @Composable
 fun SavannahWondersApp(
     onGetStarted: ()->Unit,
@@ -99,6 +116,7 @@ fun SavannahWondersApp(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -161,17 +179,16 @@ fun SavannahWondersApp(
 //        navController = navController,
 //        startDestination = ScreenNames.LOGINSCREEN.name
 //    ){
-//        composable(
-//            route = ScreenNames.LOGINSCREEN.name
-//        ){
-//            LoginScreen(
-////                navController = navController
+//        activity(route = ScreenNames.SPLASHSCREEN.name){
+//            Intent(Intent.ACTION_VIEW).setClass(
+//                context.packageName,
+//                "com.example.savannahwonders"
 //            )
 //        }
 //        composable(
-//            route = ScreenNames.REGISTRTIONSCREEN.name
+//            route = ScreenNames.REGISTRATIONSCREEN.name
 //        ){
-//            RegisterScreen()
+////            RegisterScreen()
 //        }
 //    }
 }
