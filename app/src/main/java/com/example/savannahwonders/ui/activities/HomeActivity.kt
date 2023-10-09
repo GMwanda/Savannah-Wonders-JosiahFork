@@ -104,6 +104,10 @@ class HomeActivity : ComponentActivity() {
                         onFavoritesClick = {
                             startActivity(Intent(this, FavoritesActivity::class.java))
                             finish()
+                        },
+                        onMapsClick = {
+                            startActivity(Intent(this, MapsActivity::class.java))
+                            finish()
                         }
                     )
                 }
@@ -119,7 +123,8 @@ fun HomeScreenActivity(
     onLogOut: () -> Unit,
     onFavoritesClick: () -> Unit,
     onHomeClick: () -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    onMapsClick: () -> Unit
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -178,6 +183,7 @@ fun HomeScreenActivity(
                     onSearchClick()
                     isActive = 3
                 },
+
                 isActive = isActive
             )
         }
@@ -224,7 +230,7 @@ fun HomeScreenActivity(
                                         onLogOut()
                                     }
                                     if (item.id == 3) {
-                                        MapsActivity()
+                                        onMapsClick()
                                     }
                                 }
                             },
@@ -462,7 +468,8 @@ fun HomeScreenActivityPreview() {
             onLogOut = {},
             onFavoritesClick = {},
             onHomeClick = {},
-            onSearchClick = {}
+            onSearchClick = {},
+            onMapsClick = {},
         )
     }
 }

@@ -70,7 +70,7 @@ fun MapsScreen(
     onBackClick: () -> Unit,
     onFavoritesClick: () -> Unit,
     onHomeClick: () -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
 ) {
     var isActive: Int by rememberSaveable {
         mutableStateOf(3)
