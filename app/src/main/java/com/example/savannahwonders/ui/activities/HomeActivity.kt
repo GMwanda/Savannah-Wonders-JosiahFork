@@ -307,6 +307,7 @@ fun BottomAppBar(
     var favoritesIcon: ImageVector by remember {
         mutableStateOf(Icons.Default.FavoriteBorder)
     }
+
     when (isActive) {
         1 -> {
             homeIcon = Icons.Filled.Home

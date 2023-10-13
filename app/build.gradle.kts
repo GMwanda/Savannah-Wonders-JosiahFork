@@ -56,7 +56,9 @@ android {
 }
 
 dependencies {
-
+    implementation ("com.google.android.gms:play-services-maps:18.0.1")
+    implementation ("androidx.appcompat:appcompat:1.0.2") // or a newer version
+    implementation ("androidx.vectordrawable:vectordrawable:1.1.0") // or a newer version
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.7.2")
