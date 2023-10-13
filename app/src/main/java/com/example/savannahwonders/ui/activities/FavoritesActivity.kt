@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,7 +33,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,8 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.savannahwonders.data.temp.Destination
 import com.example.savannahwonders.data.temp.TempData
-import com.example.savannahwonders.ui.activities.ui.theme.SavannahWondersTheme
-import kotlinx.coroutines.launch
+import com.example.savannahwonders.ui.theme.SavannahWondersTheme
 
 class FavoritesActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,7 +80,7 @@ class FavoritesActivity : ComponentActivity() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun FavoritesScreen(
-    onBackClick: ()->Unit,
+    onBackClick: () -> Unit,
     onFavoritesClick: () -> Unit,
     onHomeClick: () -> Unit,
     onSearchClick: () -> Unit
@@ -145,9 +142,9 @@ fun FavoritesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 50.dp)
-        ){
-            LazyColumn{
-                items(TempData.listOfDestinations){ item: Destination ->
+        ) {
+            LazyColumn {
+                items(TempData.listOfDestinations) { item: Destination ->
                     Surface(
                         tonalElevation = 2.dp,
                         shape = RoundedCornerShape(20.dp),
@@ -155,7 +152,7 @@ fun FavoritesScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ){
+                    ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -181,7 +178,6 @@ fun FavoritesScreen(
         }
     }
 }
-
 
 
 @Preview(showBackground = true)

@@ -2,8 +2,6 @@ package com.example.savannahwonders.ui.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.BlurMaskFilter
-import android.graphics.Typeface.NORMAL
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -52,12 +50,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -66,16 +60,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.savannahwonders.R
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
-import com.example.savannahwonders.ui.viewmodels.RegisterViewModel
 import com.example.savannahwonders.ui.viewmodels.SignInViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -116,9 +105,9 @@ class LoginActivity : ComponentActivity() {
 fun LoginScreen(
     modifier: Modifier = Modifier,
     onBackClicked: () -> Unit,
-    onDontHaveAccountClick: ()->Unit,
+    onDontHaveAccountClick: () -> Unit,
     signInViewModel: SignInViewModel,
-    onSuccessfulSignIn: ()->Unit
+    onSuccessfulSignIn: () -> Unit
 ) {
     var email: String by rememberSaveable {
         mutableStateOf("")
@@ -175,7 +164,10 @@ fun LoginScreen(
                             Text(text = "Email Address")
                         },
                         leadingIcon = {
-                            Icon(painter = painterResource(id = R.drawable.icons8_mail_48___), contentDescription = "email icon")
+                            Icon(
+                                painter = painterResource(id = R.drawable.icons8_mail_48___),
+                                contentDescription = "email icon"
+                            )
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
@@ -192,7 +184,7 @@ fun LoginScreen(
                         },
                         trailingIcon = {
                             Text(
-                                text = if(isShowPassword)"Hide" else "Show",
+                                text = if (isShowPassword) "Hide" else "Show",
                                 modifier = Modifier
                                     .clickable {
                                         isShowPassword = !isShowPassword
@@ -203,7 +195,10 @@ fun LoginScreen(
                             )
                         },
                         leadingIcon = {
-                            Icon(painter = painterResource(id = R.drawable.icons8_password_45___), contentDescription = "password icon")
+                            Icon(
+                                painter = painterResource(id = R.drawable.icons8_password_45___),
+                                contentDescription = "password icon"
+                            )
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password,
@@ -217,13 +212,18 @@ fun LoginScreen(
                                 }
                             }
                         ),
-                        visualTransformation = if(isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        visualTransformation = if (isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         shape = RoundedCornerShape(15.dp)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     AnimatedVisibility(
                         visible = isInvalidCredentials,
-                        enter = slideInVertically(spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessLow))
+                        enter = slideInVertically(
+                            spring(
+                                dampingRatio = Spring.DampingRatioHighBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        )
                     ) {
                         Text(
                             text = "Invalid credentials",
@@ -276,9 +276,9 @@ fun LoginScreen(
                     }
                 }
             }
-            LaunchedEffect(key1 = state.value?.isSuccess){
+            LaunchedEffect(key1 = state.value?.isSuccess) {
                 scope.launch {
-                    if(state.value?.isSuccess?.isNotEmpty() == true){
+                    if (state.value?.isSuccess?.isNotEmpty() == true) {
                         val success = state.value?.isSuccess
                         Toast.makeText(context, "${success}", Toast.LENGTH_LONG).show()
                         println("SUCCESS MESSAGE $success")
@@ -286,9 +286,9 @@ fun LoginScreen(
                     }
                 }
             }
-            LaunchedEffect(key1 = state.value?.isError){
+            LaunchedEffect(key1 = state.value?.isError) {
                 scope.launch {
-                    if(state.value?.isError?.isNotEmpty() == true){
+                    if (state.value?.isError?.isNotEmpty() == true) {
                         val error = state.value?.isError
                         Toast.makeText(context, "${error}", Toast.LENGTH_LONG).show()
                         println("Error MESSAGE $error")
@@ -304,8 +304,8 @@ fun LoginScreen(
 
 @Composable
 fun LoginScreenTopBar(
-    modifier:Modifier = Modifier,
-    onBackClicked: ()->Unit
+    modifier: Modifier = Modifier,
+    onBackClicked: () -> Unit
 ) {
     Surface(
         shadowElevation = 4.dp,
@@ -328,7 +328,6 @@ fun LoginScreenTopBar(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
 fun LoginPreview() {
     SavannahWondersTheme {

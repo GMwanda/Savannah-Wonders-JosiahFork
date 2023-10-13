@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,11 +23,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -65,10 +62,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -109,6 +104,10 @@ class HomeActivity : ComponentActivity() {
                         onFavoritesClick = {
                             startActivity(Intent(this, FavoritesActivity::class.java))
                             finish()
+                        },
+                        onMapsClick = {
+                            startActivity(Intent(this, MapsActivity::class.java))
+                            finish()
                         }
                     )
                 }
@@ -121,11 +120,12 @@ class HomeActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenActivity(
-    onLogOut: ()-> Unit,
+    onLogOut: () -> Unit,
     onFavoritesClick: () -> Unit,
     onHomeClick: () -> Unit,
-    onSearchClick: () -> Unit
-){
+    onSearchClick: () -> Unit,
+    onMapsClick: () -> Unit
+) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var isActive: Int by rememberSaveable {
@@ -183,6 +183,7 @@ fun HomeScreenActivity(
                     onSearchClick()
                     isActive = 3
                 },
+
                 isActive = isActive
             )
         }
@@ -225,8 +226,11 @@ fun HomeScreenActivity(
                                 selectedItem.value = item.id
                                 scope.launch {
                                     drawerState.close()
-                                    if(item.id == 4){
+                                    if (item.id == 5) {
                                         onLogOut()
+                                    }
+                                    if (item.id == 3) {
+                                        onMapsClick()
                                     }
                                 }
                             },
@@ -250,9 +254,9 @@ fun HomeScreen() {
         modifier = Modifier
             .padding(top = 50.dp)
     ) {
-        Box{
-            LazyColumn{
-                items(TempData.listOfDestinations){ item: Destination ->
+        Box {
+            LazyColumn {
+                items(TempData.listOfDestinations) { item: Destination ->
                     Surface(
                         tonalElevation = 2.dp,
                         shape = RoundedCornerShape(20.dp),
@@ -260,7 +264,7 @@ fun HomeScreen() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ){
+                    ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -289,9 +293,9 @@ fun HomeScreen() {
 
 @Composable
 fun BottomAppBar(
-    onSearchClick: ()->Unit,
-    onFavoritesClick: ()->Unit,
-    onHomeClick: ()->Unit,
+    onSearchClick: () -> Unit,
+    onFavoritesClick: () -> Unit,
+    onHomeClick: () -> Unit,
     isActive: Int
 ) {
     var homeIcon: ImageVector by remember {
@@ -303,17 +307,20 @@ fun BottomAppBar(
     var favoritesIcon: ImageVector by remember {
         mutableStateOf(Icons.Default.FavoriteBorder)
     }
+
     when (isActive) {
         1 -> {
             homeIcon = Icons.Filled.Home
             searchIcon = Icons.Outlined.Search
             favoritesIcon = Icons.Outlined.FavoriteBorder
         }
+
         2 -> {
             homeIcon = Icons.Outlined.Home
             searchIcon = Icons.Filled.Search
             favoritesIcon = Icons.Outlined.FavoriteBorder
         }
+
         3 -> {
             homeIcon = Icons.Outlined.Home
             searchIcon = Icons.Outlined.Search
@@ -420,6 +427,7 @@ data class MenuItem(
     val icon: ImageVector,
     val description: String
 )
+
 val menuItems: List<MenuItem> = listOf(
     MenuItem(
         id = 1,
@@ -435,12 +443,18 @@ val menuItems: List<MenuItem> = listOf(
     ),
     MenuItem(
         id = 3,
+        title = "Map of Kenya",
+        icon = Icons.Sharp.Close,
+        description = "Logout Icon"
+    ),
+    MenuItem(
+        id = 4,
         title = "Favorites",
         icon = Icons.Default.Favorite,
         description = "Cart Icon"
     ),
     MenuItem(
-        id = 4,
+        id = 5,
         title = "Logout",
         icon = Icons.Sharp.Close,
         description = "Logout Icon"
@@ -451,11 +465,12 @@ val menuItems: List<MenuItem> = listOf(
 @Composable
 fun HomeScreenActivityPreview() {
     SavannahWondersTheme {
-        HomeScreenActivity (
+        HomeScreenActivity(
             onLogOut = {},
             onFavoritesClick = {},
             onHomeClick = {},
-            onSearchClick = {}
+            onSearchClick = {},
+            onMapsClick = {},
         )
     }
 }
