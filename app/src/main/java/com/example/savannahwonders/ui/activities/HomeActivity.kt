@@ -67,11 +67,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.savannahwonders.MainActivity
 import com.example.savannahwonders.data.temp.Destination
 import com.example.savannahwonders.data.temp.TempData
+import com.example.savannahwonders.ui.navigation.NavGraph
+import com.example.savannahwonders.ui.navigation.NavGraphDestinations
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
-import com.example.savannahwonders.ui.viewmodels.RegisterViewModel
+import com.example.savannahwonders.ui.viewmodels.AuthViewModel
+import com.example.savannahwonders.ui.viewmodels.DestinationScreenViewModel
+import com.example.savannahwonders.ui.viewmodels.FavoriteScreenViewModel
+import com.example.savannahwonders.ui.viewmodels.HomeScreenViewModel
+import com.example.savannahwonders.ui.viewmodels.SearchScreenViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
@@ -80,217 +89,73 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        val registerViewModel: RegisterViewModel by viewModels()
+
         super.onCreate(savedInstanceState)
         setContent {
+
+
             SavannahWondersTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreenActivity(
-                        onLogOut = {
-                            registerViewModel.logOut()
-                            startActivity(Intent(this, MainActivity::class.java))
-                            finish()
-                        },
-                        onSearchClick = {
-                            // TODO: Launch Search screen
-                        },
-                        onHomeClick = {
-
-                        },
-                        onFavoritesClick = {
-                            startActivity(Intent(this, FavoritesActivity::class.java))
-                            finish()
-                        },
-                        onMapsClick = {
-                            startActivity(Intent(this, MapsActivity::class.java))
-                            finish()
-                        }
+                    SavannahWondersApp(
+                        navHostController = rememberNavController(),
                     )
                 }
             }
         }
     }
 }
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreenActivity(
-    onLogOut: () -> Unit,
-    onFavoritesClick: () -> Unit,
-    onHomeClick: () -> Unit,
-    onSearchClick: () -> Unit,
-    onMapsClick: () -> Unit
+fun SavannahWondersApp(
+    navHostController: NavHostController,
 ) {
+    val homeScreenViewModel: HomeScreenViewModel = viewModel()
+    val destinationScreenViewModel: DestinationScreenViewModel = viewModel()
+    val authViewModel: AuthViewModel = viewModel()
+    val favoriteScreenViewModel: FavoriteScreenViewModel = viewModel()
+    val searchScreenViewModel: SearchScreenViewModel = viewModel()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var isActive: Int by rememberSaveable {
         mutableStateOf(1)
     }
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Home",
-                        fontSize = 17.sp,
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                    )
-
-                },
-                colors = TopAppBarDefaults.smallTopAppBarColors(),
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            scope.launch {
-                                if (drawerState.isClosed) {
-                                    drawerState.open()
-                                } else {
-                                    drawerState.close()
-                                }
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "Menu Icon",
-                            modifier = Modifier
-                                .size(27.dp)
-                        )
-                    }
-
-                },
-                modifier = Modifier
-                    .height(40.dp)
-            )
-        },
         bottomBar = {
             BottomAppBar(
                 onFavoritesClick = {
-                    onFavoritesClick()
-                    isActive = 1
+                    navHostController.navigate(route = NavGraphDestinations.FAVORITES.name)
+                    isActive = 3
                 },
                 onHomeClick = {
-                    onHomeClick()
-                    isActive = 2
+                    navHostController.navigate(NavGraphDestinations.HOME.name)
+                    isActive = 1
                 },
                 onSearchClick = {
-                    onSearchClick()
-                    isActive = 3
+                    navHostController.navigate(NavGraphDestinations.SEARCH.name)
+                    isActive = 2
                 },
 
                 isActive = isActive
             )
         }
     ) {
-        ModalNavigationDrawer(
+        NavGraph(
+            navHostController = navHostController,
             drawerState = drawerState,
-            drawerContent = {
-                val selectedItem = remember { mutableStateOf(menuItems[0].id) }
-                ModalDrawerSheet(
-                    modifier = Modifier
-                        .width(258.dp)
-                ) {
-                    Spacer(Modifier.height(52.dp))
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "User Icon",
-                            modifier = Modifier
-                                .size(72.dp)
-                        )
-                        Firebase.auth.currentUser?.email?.let { it1 ->
-                            Text(
-                                text = it1,
-                                fontWeight = FontWeight.Light,
-                                fontSize = 13.sp
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(52.dp))
-                    menuItems.forEach { item ->
-                        NavigationDrawerItem(
-                            icon = { Icon(item.icon, contentDescription = item.description) },
-                            label = { Text(item.title) },
-                            selected = item.id == selectedItem.value,
-                            onClick = {
-                                selectedItem.value = item.id
-                                scope.launch {
-                                    drawerState.close()
-                                    if (item.id == 5) {
-                                        onLogOut()
-                                    }
-                                    if (item.id == 3) {
-                                        onMapsClick()
-                                    }
-                                }
-                            },
-                            modifier = Modifier
-                                .padding(vertical = 8.dp)
-                        )
-                    }
-                }
-            },
-            content = {
-                HomeScreen()
-            }
+            coroutineScope = scope,
+            authViewModel = authViewModel,
+            homeScreenViewModel = homeScreenViewModel,
+            destinationScreenViewModel = destinationScreenViewModel,
+            favoriteScreenViewModel = favoriteScreenViewModel,
+            searchScreenViewModel = searchScreenViewModel
         )
     }
 }
-
-@Composable
-fun HomeScreen() {
-    val scrollState = rememberScrollState()
-    Column(
-        modifier = Modifier
-            .padding(top = 50.dp)
-    ) {
-        Box {
-            LazyColumn {
-                items(TempData.listOfDestinations) { item: Destination ->
-                    Surface(
-                        tonalElevation = 2.dp,
-                        shape = RoundedCornerShape(20.dp),
-                        shadowElevation = 10.dp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Image(
-                                painter = painterResource(id = item.image),
-                                contentDescription = "Destination Image",
-                                modifier = Modifier
-                                    .size(80.dp)
-                            )
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(16.dp),
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                            ) {
-                                Text(text = item.name)
-                                Text(text = "Ksh. ${item.price}")
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 @Composable
 fun BottomAppBar(
     onSearchClick: () -> Unit,
@@ -435,42 +300,33 @@ val menuItems: List<MenuItem> = listOf(
         icon = Icons.Default.Home,
         description = "Home Icon"
     ),
-    MenuItem(
-        id = 2,
-        title = "Settings",
-        icon = Icons.Default.Settings,
-        description = "Settings Icon"
-    ),
+//    MenuItem(
+//        id = 2,
+//        title = "Settings",
+//        icon = Icons.Default.Settings,
+//        description = "Settings Icon"
+//    ),
     MenuItem(
         id = 3,
-        title = "Map of Kenya",
-        icon = Icons.Sharp.Close,
-        description = "Logout Icon"
-    ),
-    MenuItem(
-        id = 4,
         title = "Favorites",
         icon = Icons.Default.Favorite,
         description = "Cart Icon"
     ),
     MenuItem(
-        id = 5,
+        id = 4,
         title = "Logout",
         icon = Icons.Sharp.Close,
         description = "Logout Icon"
     )
 )
 
+
+
+
+
 @Preview
 @Composable
 fun HomeScreenActivityPreview() {
     SavannahWondersTheme {
-        HomeScreenActivity(
-            onLogOut = {},
-            onFavoritesClick = {},
-            onHomeClick = {},
-            onSearchClick = {},
-            onMapsClick = {},
-        )
     }
 }

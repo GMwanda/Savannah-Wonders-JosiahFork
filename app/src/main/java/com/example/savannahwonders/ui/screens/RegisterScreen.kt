@@ -1,12 +1,7 @@
-package com.example.savannahwonders.ui.activities
+package com.example.savannahwonders.ui.screens
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -60,91 +55,66 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.savannahwonders.R
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
-import com.example.savannahwonders.ui.viewmodels.SignInViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import com.example.savannahwonders.ui.viewmodels.AuthViewModel
 import kotlinx.coroutines.launch
-
-@AndroidEntryPoint
-class LoginActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val signInViewModel: SignInViewModel by viewModels()
-            SavannahWondersTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    LoginScreen(
-                        onBackClicked = {
-                            finish()
-                        },
-                        onDontHaveAccountClick = {
-                            startActivity(Intent(this, RegisterActivity::class.java))
-                        },
-                        signInViewModel = signInViewModel,
-                        onSuccessfulSignIn = {
-                            startActivity(Intent(this, HomeActivity::class.java))
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(
+fun RegisterScreen(
     modifier: Modifier = Modifier,
-    onBackClicked: () -> Unit,
-    onDontHaveAccountClick: () -> Unit,
-    signInViewModel: SignInViewModel,
-    onSuccessfulSignIn: () -> Unit
+    onHaveAccountClick: () -> Unit,
+    onBackClick: () -> Unit,
+    authViewModel: AuthViewModel,
+    onSuccessfulRegister: ()->Unit
 ) {
+    var name: String by rememberSaveable {
+        mutableStateOf("")
+    }
     var email: String by rememberSaveable {
         mutableStateOf("")
     }
     var password: String by rememberSaveable {
         mutableStateOf("")
     }
+    var confirm_password: String by rememberSaveable {
+        mutableStateOf("")
+    }
+    var isPasswordMatch: Boolean by rememberSaveable {
+        mutableStateOf(true)
+    }
+    val keyboardController = LocalSoftwareKeyboardController.current
     var isShowPassword: Boolean by rememberSaveable {
         mutableStateOf(false)
     }
-    var isInvalidCredentials: Boolean by rememberSaveable {
-        mutableStateOf(false)
-    }
-    val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
-    val state = signInViewModel.signInState.collectAsState(initial = null)
+    val state = authViewModel.registerState.collectAsState(initial = null)
     val context = LocalContext.current
     Scaffold(
         topBar = {
-            LoginScreenTopBar(
-                onBackClicked = {
-                    onBackClicked()
-                }
+            RegistrationScreenTopBar(
+                onBackClick = onBackClick
             )
-        },
+        }
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceAround,
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxSize()
                 .padding(top = 50.dp)
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
             Box {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(16.dp)
                 ) {
                     Text(
                         text = "Hey,",
@@ -152,22 +122,35 @@ fun LoginScreen(
                         fontWeight = FontWeight.Light
                     )
                     Text(
-                        text = "Welcome Back",
+                        text = "Create an Account",
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(30.dp))
+                    Spacer(modifier = Modifier.height(25.dp))
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = {name = it},
+                        label = {
+                            Text(text = "Name")
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
+                        leadingIcon = {
+                            Icon(painter = painterResource(id = R.drawable.icons8_user_45___), contentDescription = "User icon")
+                        },
+                        shape = RoundedCornerShape(15.dp)
+                    )
+                    Spacer(modifier = Modifier.height(15.dp))
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it },
+                        onValueChange = {email = it},
                         label = {
-                            Text(text = "Email Address")
+                            Text(text = "Email")
                         },
                         leadingIcon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.icons8_mail_48___),
-                                contentDescription = "email icon"
-                            )
+                            Icon(painter = painterResource(id = R.drawable.icons8_mail_48___), contentDescription = "Email icon")
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
@@ -175,68 +158,83 @@ fun LoginScreen(
                         ),
                         shape = RoundedCornerShape(15.dp)
                     )
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(15.dp))
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { password = it },
+                        onValueChange = {password = it},
                         label = {
                             Text(text = "Password")
                         },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Next
+                        ),
+                        leadingIcon = {
+                            Icon(painter = painterResource(id = R.drawable.icons8_password_45___), contentDescription = "Password Icon")
+                        },
                         trailingIcon = {
                             Text(
-                                text = if (isShowPassword) "Hide" else "Show",
+                                text = if(isShowPassword)"Hide" else "Show",
                                 modifier = Modifier
                                     .clickable {
                                         isShowPassword = !isShowPassword
-                                        println("Clicked Show password")
                                     },
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Light
                             )
                         },
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.icons8_password_45___),
-                                contentDescription = "password icon"
-                            )
+                        visualTransformation = if(isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        shape = RoundedCornerShape(15.dp)
+                    )
+                    Spacer(modifier = Modifier.height(15.dp))
+                    OutlinedTextField(
+                        value = confirm_password,
+                        onValueChange = {confirm_password = it},
+                        label = {
+                            Text(text = "Confirm Password")
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done
                         ),
+                        leadingIcon = {
+                            Icon(painter = painterResource(id = R.drawable.icons8_password_45___), contentDescription = "Password Icon")
+                        },
                         keyboardActions = KeyboardActions(
                             onDone = {
+                                isPasswordMatch = password == confirm_password
                                 keyboardController?.hide()
                                 scope.launch {
-                                    signInViewModel.loginUser(email, password)
+                                    authViewModel.registerUser(email, password, name)
                                 }
                             }
                         ),
-                        visualTransformation = if (isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            Text(
+                                text = if(isShowPassword)"Hide" else "Show",
+                                modifier = Modifier
+                                    .clickable {
+                                        isShowPassword = !isShowPassword
+                                    },
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Light
+                            )
+                        },
+                        visualTransformation = if(isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         shape = RoundedCornerShape(15.dp)
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(25.dp))
                     AnimatedVisibility(
-                        visible = isInvalidCredentials,
-                        enter = slideInVertically(
-                            spring(
-                                dampingRatio = Spring.DampingRatioHighBouncy,
-                                stiffness = Spring.StiffnessLow
-                            )
-                        )
+                        visible = !isPasswordMatch,
+                        enter = slideInVertically(spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessLow))
                     ) {
                         Text(
-                            text = "Invalid credentials",
-                            fontSize = 15.sp,
+                            text = "Passwords don't match!",
+                            fontSize = 12.sp,
                             color = Color.Red
                         )
                     }
-                    Text(
-                        text = "Forgot your Password?",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Light,
-                        textDecoration = TextDecoration.Underline
-                    )
+
                 }
             }
             if (state.value?.isLoading == true) {
@@ -248,64 +246,61 @@ fun LoginScreen(
                 ) {
                     Button(
                         onClick = {
-                            scope.launch {
-                                signInViewModel.loginUser(email, password)
-                            }
+                             scope.launch {
+                                 authViewModel.registerUser(email, password, name)
+                             }
                         },
                         modifier = Modifier
                             .width(200.dp)
-                            .shadow(
-                                elevation = 10.dp,
-                                shape = RoundedCornerShape(20.dp),
-                            )
+                            .shadow(10.dp, RoundedCornerShape(20.dp))
                     ) {
-                        Text(text = "LogIn")
+                        Text(text = "Register")
                     }
-
                     Spacer(modifier = Modifier.height(20.dp))
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Don't have an account? ")
+                        Text(text = "Already have an account? ")
                         Text(
-                            text = "Register",
+                            text = "Login",
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
-                                .clickable { onDontHaveAccountClick() }
+                                .clickable {
+                                    onHaveAccountClick()
+                                }
                         )
                     }
                 }
             }
-            LaunchedEffect(key1 = state.value?.isSuccess) {
+            LaunchedEffect(key1 = state.value?.isSuccess){
                 scope.launch {
-                    if (state.value?.isSuccess?.isNotEmpty() == true) {
+                    if(state.value?.isSuccess?.isNotEmpty() == true){
                         val success = state.value?.isSuccess
                         Toast.makeText(context, "${success}", Toast.LENGTH_LONG).show()
                         println("SUCCESS MESSAGE $success")
-                        onSuccessfulSignIn()
+                        onSuccessfulRegister()
                     }
                 }
             }
-            LaunchedEffect(key1 = state.value?.isError) {
+            LaunchedEffect(key1 = state.value?.isError){
                 scope.launch {
-                    if (state.value?.isError?.isNotEmpty() == true) {
+                    if(state.value?.isError?.isNotEmpty() == true){
                         val error = state.value?.isError
                         Toast.makeText(context, "${error}", Toast.LENGTH_LONG).show()
                         println("Error MESSAGE $error")
-//                        onSuccessfulSignIn()
-                        isInvalidCredentials = true
                     }
                 }
             }
         }
 
     }
-}
 
+
+}
 @Composable
-fun LoginScreenTopBar(
-    modifier: Modifier = Modifier,
-    onBackClicked: () -> Unit
+fun RegistrationScreenTopBar(
+    modifier:Modifier = Modifier,
+    onBackClick: ()->Unit
 ) {
     Surface(
         shadowElevation = 4.dp,
@@ -317,28 +312,23 @@ fun LoginScreenTopBar(
             modifier = modifier
                 .fillMaxWidth()
         ) {
-            IconButton(onClick = onBackClicked) {
-                Icon(
-                    imageVector = Icons.Outlined.ArrowBack,
-                    contentDescription = "Back"
-                )
+            IconButton(onClick = onBackClick) {
+                Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = "Back")
             }
-
         }
     }
 }
 
+
+
+@Preview(showBackground = true)
 @Composable
-fun LoginPreview() {
+fun RegisterPreview() {
     SavannahWondersTheme {
-//        LoginScreen(
-//            onBackClicked = {
-//
-//            },
-//            onDontHaveAccountClick = {
-//
-//            },
-//            onSuccessfulSignIn = {},
+//        RegisterScreen(
+//            onBackClick = {},
+//            onHaveAccountClick = {},
+//            registerViewModel = null
 //        )
     }
 }

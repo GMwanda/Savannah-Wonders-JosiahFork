@@ -32,9 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.savannahwonders.ui.activities.AuthActivity
 import com.example.savannahwonders.ui.activities.HomeActivity
-import com.example.savannahwonders.ui.activities.LoginActivity
-import com.example.savannahwonders.ui.activities.RegisterActivity
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,37 +55,20 @@ class MainActivity : ComponentActivity() {
                     ) {
                         SavannahWondersApp(
                             onGetStarted = {
-                                startActivity(Intent(this, RegisterActivity::class.java))
+                                startActivity(Intent(this, AuthActivity::class.java))
                             },
                             onHaveAccountClick = {
-                                startActivity(Intent(this, LoginActivity::class.java))
+                                startActivity(Intent(this, AuthActivity::class.java))
                             }
                         )
                     }
                 }
             }
         } else {
-            setContent {
-                SavannahWondersTheme {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        startActivity(Intent(this, HomeActivity::class.java))
-                        finish()
-                    }
-                }
-            }
+            startActivity(Intent(this, HomeActivity::class.java))
+            finish()
         }
     }
-}
-
-enum class ScreenNames {
-    LOGINSCREEN,
-    REGISTRATIONSCREEN,
-    SPLASHSCREEN,
-    HOMESCREEN,
-    FAVORITESSCREEN
 }
 
 @Composable
@@ -157,23 +139,6 @@ fun SavannahWondersApp(
         }
 
     }
-//    val navController = rememberNavController()
-//    NavHost(
-//        navController = navController,
-//        startDestination = ScreenNames.LOGINSCREEN.name
-//    ){
-//        activity(route = ScreenNames.SPLASHSCREEN.name){
-//            Intent(Intent.ACTION_VIEW).setClass(
-//                context.packageName,
-//                "com.example.savannahwonders"
-//            )
-//        }
-//        composable(
-//            route = ScreenNames.REGISTRATIONSCREEN.name
-//        ){
-////            RegisterScreen()
-//        }
-//    }
 }
 
 

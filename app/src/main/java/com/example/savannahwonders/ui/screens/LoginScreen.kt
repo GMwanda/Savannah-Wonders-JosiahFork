@@ -1,17 +1,10 @@
-package com.example.savannahwonders.ui.activities
+package com.example.savannahwonders.ui.screens
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,97 +55,60 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.savannahwonders.R
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
-import com.example.savannahwonders.ui.viewmodels.RegisterViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import com.example.savannahwonders.ui.viewmodels.AuthViewModel
 import kotlinx.coroutines.launch
-
-@AndroidEntryPoint
-class RegisterActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            SavannahWondersTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    val registerViewModel: RegisterViewModel by viewModels()
-                    RegisterScreen(
-                        onHaveAccountClick = {
-                            startActivity(Intent(this, LoginActivity::class.java))
-                        },
-                        onBackClick = {
-                            finish()
-                        },
-                        registerViewModel = registerViewModel,
-                        onSuccessfulRegister = {
-                            startActivity(Intent(this, HomeActivity::class.java))
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun RegisterScreen(
+fun LoginScreen(
     modifier: Modifier = Modifier,
-    onHaveAccountClick: () -> Unit,
-    onBackClick: () -> Unit,
-    registerViewModel: RegisterViewModel,
-    onSuccessfulRegister: ()->Unit
+    onBackClicked: () -> Unit,
+    onDontHaveAccountClick: () -> Unit,
+    authViewModel: AuthViewModel,
+    onSuccessfulSignIn: () -> Unit
 ) {
-    var name: String by rememberSaveable {
-        mutableStateOf("")
-    }
     var email: String by rememberSaveable {
         mutableStateOf("")
     }
     var password: String by rememberSaveable {
         mutableStateOf("")
     }
-    var confirm_password: String by rememberSaveable {
-        mutableStateOf("")
-    }
-    var isPasswordMatch: Boolean by rememberSaveable {
-        mutableStateOf(true)
-    }
-    val keyboardController = LocalSoftwareKeyboardController.current
     var isShowPassword: Boolean by rememberSaveable {
         mutableStateOf(false)
     }
+    var isInvalidCredentials: Boolean by rememberSaveable {
+        mutableStateOf(false)
+    }
+    val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
-    val state = registerViewModel.registerState.collectAsState(initial = null)
+    val state = authViewModel.signInState.collectAsState(initial = null)
     val context = LocalContext.current
     Scaffold(
         topBar = {
-            RegistrationScreenTopBar(
-                onBackClick = onBackClick
+            LoginScreenTopBar(
+                onBackClicked = {
+                    onBackClicked()
+                }
             )
-        }
+        },
     ) {
         Column(
-            verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceAround,
             modifier = Modifier
-                .padding(top = 50.dp)
                 .fillMaxSize()
+                .padding(top = 50.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             Box {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .padding(16.dp)
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = "Hey,",
@@ -160,35 +116,22 @@ fun RegisterScreen(
                         fontWeight = FontWeight.Light
                     )
                     Text(
-                        text = "Create an Account",
+                        text = "Welcome Back",
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(25.dp))
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = {name = it},
-                        label = {
-                            Text(text = "Name")
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        leadingIcon = {
-                            Icon(painter = painterResource(id = R.drawable.icons8_user_45___), contentDescription = "User icon")
-                        },
-                        shape = RoundedCornerShape(15.dp)
-                    )
-                    Spacer(modifier = Modifier.height(15.dp))
+                    Spacer(modifier = Modifier.height(30.dp))
                     OutlinedTextField(
                         value = email,
-                        onValueChange = {email = it},
+                        onValueChange = { email = it },
                         label = {
-                            Text(text = "Email")
+                            Text(text = "Email Address")
                         },
                         leadingIcon = {
-                            Icon(painter = painterResource(id = R.drawable.icons8_mail_48___), contentDescription = "Email icon")
+                            Icon(
+                                painter = painterResource(id = R.drawable.icons8_mail_48___),
+                                contentDescription = "email icon"
+                            )
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
@@ -196,83 +139,68 @@ fun RegisterScreen(
                         ),
                         shape = RoundedCornerShape(15.dp)
                     )
-                    Spacer(modifier = Modifier.height(15.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                     OutlinedTextField(
                         value = password,
-                        onValueChange = {password = it},
+                        onValueChange = { password = it },
                         label = {
                             Text(text = "Password")
                         },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Next
-                        ),
-                        leadingIcon = {
-                            Icon(painter = painterResource(id = R.drawable.icons8_password_45___), contentDescription = "Password Icon")
-                        },
                         trailingIcon = {
                             Text(
-                                text = if(isShowPassword)"Hide" else "Show",
+                                text = if (isShowPassword) "Hide" else "Show",
                                 modifier = Modifier
                                     .clickable {
                                         isShowPassword = !isShowPassword
+                                        println("Clicked Show password")
                                     },
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Light
                             )
                         },
-                        visualTransformation = if(isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                        shape = RoundedCornerShape(15.dp)
-                    )
-                    Spacer(modifier = Modifier.height(15.dp))
-                    OutlinedTextField(
-                        value = confirm_password,
-                        onValueChange = {confirm_password = it},
-                        label = {
-                            Text(text = "Confirm Password")
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.icons8_password_45___),
+                                contentDescription = "password icon"
+                            )
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done
                         ),
-                        leadingIcon = {
-                            Icon(painter = painterResource(id = R.drawable.icons8_password_45___), contentDescription = "Password Icon")
-                        },
                         keyboardActions = KeyboardActions(
                             onDone = {
-                                isPasswordMatch = password == confirm_password
                                 keyboardController?.hide()
                                 scope.launch {
-                                    registerViewModel.registerUser(email, password, name)
+                                    authViewModel.loginUser(email, password)
                                 }
                             }
                         ),
-                        trailingIcon = {
-                            Text(
-                                text = if(isShowPassword)"Hide" else "Show",
-                                modifier = Modifier
-                                    .clickable {
-                                        isShowPassword = !isShowPassword
-                                    },
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Light
-                            )
-                        },
-                        visualTransformation = if(isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        visualTransformation = if (isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         shape = RoundedCornerShape(15.dp)
                     )
-                    Spacer(modifier = Modifier.height(25.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
                     AnimatedVisibility(
-                        visible = !isPasswordMatch,
-                        enter = slideInVertically(spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessLow))
+                        visible = isInvalidCredentials,
+                        enter = slideInVertically(
+                            spring(
+                                dampingRatio = Spring.DampingRatioHighBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        )
                     ) {
                         Text(
-                            text = "Passwords don't match!",
-                            fontSize = 12.sp,
+                            text = "Invalid credentials",
+                            fontSize = 15.sp,
                             color = Color.Red
                         )
                     }
-
+                    Text(
+                        text = "Forgot your Password?",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Light,
+                        textDecoration = TextDecoration.Underline
+                    )
                 }
             }
             if (state.value?.isLoading == true) {
@@ -284,61 +212,64 @@ fun RegisterScreen(
                 ) {
                     Button(
                         onClick = {
-                             scope.launch {
-                                 registerViewModel.registerUser(email, password, name)
-                             }
+                            scope.launch {
+                                authViewModel.loginUser(email, password)
+                            }
                         },
                         modifier = Modifier
                             .width(200.dp)
-                            .shadow(10.dp, RoundedCornerShape(20.dp))
+                            .shadow(
+                                elevation = 10.dp,
+                                shape = RoundedCornerShape(20.dp),
+                            )
                     ) {
-                        Text(text = "Register")
+                        Text(text = "LogIn")
                     }
+
                     Spacer(modifier = Modifier.height(20.dp))
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(text = "Already have an account? ")
+                        Text(text = "Don't have an account? ")
                         Text(
-                            text = "Login",
+                            text = "Register",
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
-                                .clickable {
-                                    onHaveAccountClick()
-                                }
+                                .clickable { onDontHaveAccountClick() }
                         )
                     }
                 }
             }
-            LaunchedEffect(key1 = state.value?.isSuccess){
+            LaunchedEffect(key1 = state.value?.isSuccess) {
                 scope.launch {
-                    if(state.value?.isSuccess?.isNotEmpty() == true){
+                    if (state.value?.isSuccess?.isNotEmpty() == true) {
                         val success = state.value?.isSuccess
                         Toast.makeText(context, "${success}", Toast.LENGTH_LONG).show()
                         println("SUCCESS MESSAGE $success")
-                        onSuccessfulRegister()
+                        onSuccessfulSignIn()
                     }
                 }
             }
-            LaunchedEffect(key1 = state.value?.isError){
+            LaunchedEffect(key1 = state.value?.isError) {
                 scope.launch {
-                    if(state.value?.isError?.isNotEmpty() == true){
+                    if (state.value?.isError?.isNotEmpty() == true) {
                         val error = state.value?.isError
                         Toast.makeText(context, "${error}", Toast.LENGTH_LONG).show()
                         println("Error MESSAGE $error")
+//                        onSuccessfulSignIn()
+                        isInvalidCredentials = true
                     }
                 }
             }
         }
 
     }
-
-
 }
+
 @Composable
-fun RegistrationScreenTopBar(
-    modifier:Modifier = Modifier,
-    onBackClick: ()->Unit
+fun LoginScreenTopBar(
+    modifier: Modifier = Modifier,
+    onBackClicked: () -> Unit
 ) {
     Surface(
         shadowElevation = 4.dp,
@@ -350,23 +281,28 @@ fun RegistrationScreenTopBar(
             modifier = modifier
                 .fillMaxWidth()
         ) {
-            IconButton(onClick = onBackClick) {
-                Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = "Back")
+            IconButton(onClick = onBackClicked) {
+                Icon(
+                    imageVector = Icons.Outlined.ArrowBack,
+                    contentDescription = "Back"
+                )
             }
+
         }
     }
 }
 
-
-
-@Preview(showBackground = true)
 @Composable
-fun RegisterPreview() {
+fun LoginPreview() {
     SavannahWondersTheme {
-//        RegisterScreen(
-//            onBackClick = {},
-//            onHaveAccountClick = {},
-//            registerViewModel = null
+//        LoginScreen(
+//            onBackClicked = {
+//
+//            },
+//            onDontHaveAccountClick = {
+//
+//            },
+//            onSuccessfulSignIn = {},
 //        )
     }
 }
