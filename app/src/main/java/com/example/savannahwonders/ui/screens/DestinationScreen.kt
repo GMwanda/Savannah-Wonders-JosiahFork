@@ -1,9 +1,10 @@
 package com.example.savannahwonders.ui.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,12 +53,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.savannahwonders.ui.viewmodels.DestinationScreenViewModel
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import kotlin.math.absoluteValue
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -102,6 +110,9 @@ fun DestinatioinScreen(
     ) {
         val scrollState = rememberScrollState()
         val uiState = destinationScreenViewModel.destinationScreenUiState.collectAsState()
+        var isViewMap by rememberSaveable {
+            mutableStateOf(false)
+        }
         var isFavorite by rememberSaveable {
             mutableStateOf(false)
         }
@@ -243,7 +254,38 @@ fun DestinatioinScreen(
                 Text(text = uiState.value.description.toString())
             }
             Spacer(modifier = Modifier.height(25.dp))
-            Text(text = "View In Map")
+            Text(
+                text = "View In Map >",
+                fontWeight = FontWeight.Light,
+                modifier = Modifier
+                    .clickable {
+                        isViewMap = !isViewMap
+                    }
+            )
+            var longitude = uiState.value.location?.longitude?.toDouble()
+            var latitude = uiState.value.location?.latitude?.toDouble()
+
+            val currentDestination = LatLng(latitude!!, longitude!!)
+            val cameraPositionState = rememberCameraPositionState {
+                position = CameraPosition.fromLatLngZoom(currentDestination, 10f)
+            }
+
+            AnimatedVisibility(visible = isViewMap) {
+                GoogleMap(
+                    modifier = Modifier.height(740.dp),
+                    cameraPositionState = cameraPositionState,
+                    properties = MapProperties(
+                        mapType = MapType.HYBRID,
+                    )
+                ) {
+                    Marker(
+                        state = MarkerState(position = currentDestination),
+                        title = "${uiState.value.name}",
+                        draggable = true,
+                        visible = true
+                    )
+                }
+            }
         }
     }
 }
