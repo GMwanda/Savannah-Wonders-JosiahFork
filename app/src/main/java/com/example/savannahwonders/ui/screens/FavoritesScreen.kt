@@ -1,10 +1,6 @@
-package com.example.savannahwonders.ui.activities
+package com.example.savannahwonders.ui.screens
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,75 +21,36 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.savannahwonders.data.temp.Destination
 import com.example.savannahwonders.data.temp.TempData
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
 
-class FavoritesActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            SavannahWondersTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    FavoritesScreen(
-                        onBackClick = {
-                            finish()
-                        },
-                        onSearchClick = {
-                            // TODO: Launch Search screen
-                        },
-                        onHomeClick = {
-                            startActivity(Intent(this, HomeActivity::class.java))
-                            finish()
-                        },
-                        onFavoritesClick = {
-
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun FavoritesScreen(
-    onBackClick: () -> Unit,
-    onFavoritesClick: () -> Unit,
-    onHomeClick: () -> Unit,
-    onSearchClick: () -> Unit
+    navController: NavHostController
 ) {
-    var isActive: Int by rememberSaveable {
-        mutableStateOf(3)
-    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Home",
+                        text = "Favoirtes",
                         fontSize = 17.sp,
                         modifier = Modifier
                             .padding(top = 8.dp)
@@ -104,7 +61,7 @@ fun FavoritesScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            onBackClick()
+                            navController.popBackStack()
                         }
                     ) {
                         Icon(
@@ -120,23 +77,6 @@ fun FavoritesScreen(
                     .height(40.dp)
             )
         },
-        bottomBar = {
-            BottomAppBar(
-                onFavoritesClick = {
-                    onFavoritesClick()
-                    isActive = 1
-                },
-                onHomeClick = {
-                    onHomeClick()
-                    isActive = 2
-                },
-                onSearchClick = {
-                    onSearchClick()
-                    isActive = 3
-                },
-                isActive = isActive
-            )
-        }
     ) {
         Box(
             modifier = Modifier
@@ -184,6 +124,6 @@ fun FavoritesScreen(
 @Composable
 fun GreetingPreview2() {
     SavannahWondersTheme {
-
+//        FavoritesScreen()
     }
 }

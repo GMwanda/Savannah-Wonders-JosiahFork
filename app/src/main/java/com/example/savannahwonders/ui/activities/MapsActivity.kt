@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.savannahwonders.ui.activities.ui.theme.SavannahWondersTheme
+import com.example.savannahwonders.ui.theme.SavannahWondersTheme
 
 class MapsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -117,23 +117,6 @@ class MapsActivity : ComponentActivity() {
                         .height(40.dp)
                 )
             },
-            bottomBar = {
-                BottomAppBar(
-                    onFavoritesClick = {
-                        onFavoritesClick()
-                        isActive = 1
-                    },
-                    onHomeClick = {
-                        onHomeClick()
-                        isActive = 2
-                    },
-                    onSearchClick = {
-                        onSearchClick()
-                        isActive = 3
-                    },
-                    isActive = isActive
-                )
-            }
         ) {
             Box(
                 modifier = Modifier
