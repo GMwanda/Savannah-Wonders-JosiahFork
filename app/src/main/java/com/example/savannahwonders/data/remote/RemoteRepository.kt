@@ -5,5 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface RemoteRepository {
     suspend fun getAllDestinations() : List<DestinationModel>
-    suspend fun testDb()
+    suspend fun addToFavorites(destinationModel: DestinationModel)
+    suspend fun getFavorites(): List<DestinationModel>
+    suspend fun search(searchTerm: String): List<DestinationModel>
 }

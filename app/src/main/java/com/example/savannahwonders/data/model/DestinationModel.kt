@@ -17,7 +17,7 @@ data class DestinationModel(
     @Json(name = "Other_Images")
     var otherImages: String? = "",
     @Json(name = "Place ID")
-    var placeID: Int? = 0,
+    var placeID: String? = "",
     @Json(name = "Rating")
     var rating: Double? = 0.0,
     @Json(name = "Reviews")

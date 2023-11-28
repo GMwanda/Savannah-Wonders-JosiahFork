@@ -94,14 +94,13 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     drawerState: DrawerState,
     scope: CoroutineScope,
-    onMapsClick: () -> Unit,
     authViewModel: AuthViewModel,
     homeScreenViewModel: HomeScreenViewModel,
     destinationScreenViewModel: DestinationScreenViewModel,
     navHostController: NavHostController
 ) {
     var uiState = homeScreenViewModel.homeScreenUiState.collectAsState()
-
+    val selectedItem = remember { mutableStateOf(menuItems[0].id) }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -144,7 +143,7 @@ fun HomeScreen(
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
-                val selectedItem = remember { mutableStateOf(menuItems[0].id) }
+
                 ModalDrawerSheet(
                     modifier = Modifier
                         .width(258.dp)
@@ -179,11 +178,11 @@ fun HomeScreen(
                                 selectedItem.value = item.id
                                 scope.launch {
                                     drawerState.close()
-                                    if (item.id == 5) {
+                                    if (item.id == 4) {
                                         authViewModel.logOut()
                                     }
-                                    if (item.id == 3) {
-                                        onMapsClick()
+                                    if (item.id == 3){
+                                        navHostController.navigate(NavGraphDestinations.FAVORITES.name)
                                     }
                                 }
                             },

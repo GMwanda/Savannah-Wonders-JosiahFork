@@ -10,9 +10,12 @@ import androidx.navigation.compose.composable
 import com.example.savannahwonders.ui.screens.DestinatioinScreen
 import com.example.savannahwonders.ui.screens.FavoritesScreen
 import com.example.savannahwonders.ui.screens.HomeScreen
+import com.example.savannahwonders.ui.screens.SearchScreen
 import com.example.savannahwonders.ui.viewmodels.AuthViewModel
 import com.example.savannahwonders.ui.viewmodels.DestinationScreenViewModel
+import com.example.savannahwonders.ui.viewmodels.FavoriteScreenViewModel
 import com.example.savannahwonders.ui.viewmodels.HomeScreenViewModel
+import com.example.savannahwonders.ui.viewmodels.SearchScreenViewModel
 import kotlinx.coroutines.CoroutineScope
 
 enum class NavGraphDestinations{
@@ -20,7 +23,8 @@ enum class NavGraphDestinations{
     FAVORITES,
     LOGIN,
     REGISTER,
-    DESTINATION
+    DESTINATION,
+    SEARCH
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,7 +35,9 @@ fun NavGraph(
     coroutineScope: CoroutineScope,
     authViewModel: AuthViewModel,
     homeScreenViewModel: HomeScreenViewModel,
-    destinationScreenViewModel: DestinationScreenViewModel
+    destinationScreenViewModel: DestinationScreenViewModel,
+    favoriteScreenViewModel: FavoriteScreenViewModel,
+    searchScreenViewModel: SearchScreenViewModel
 ) {
     NavHost(
         navController = navHostController,
@@ -41,7 +47,6 @@ fun NavGraph(
             HomeScreen(
                 drawerState = drawerState,
                 scope = coroutineScope,
-                onMapsClick = {/*TODO*/},
                 authViewModel = authViewModel,
                 homeScreenViewModel = homeScreenViewModel,
                 destinationScreenViewModel = destinationScreenViewModel,
@@ -50,11 +55,20 @@ fun NavGraph(
         }
         composable(route = NavGraphDestinations.FAVORITES.name){
             FavoritesScreen(
-                navController = navHostController
+                navHostController = navHostController,
+                favoriteScreenViewModel = favoriteScreenViewModel,
+                destinationScreenViewModel = destinationScreenViewModel
             )
         }
         composable(route = NavGraphDestinations.DESTINATION.name){
             DestinatioinScreen(
+                navHostController = navHostController,
+                destinationScreenViewModel = destinationScreenViewModel
+            )
+        }
+        composable(route = NavGraphDestinations.SEARCH.name){
+            SearchScreen(
+                searchScreenViewModel = searchScreenViewModel,
                 navHostController = navHostController,
                 destinationScreenViewModel = destinationScreenViewModel
             )

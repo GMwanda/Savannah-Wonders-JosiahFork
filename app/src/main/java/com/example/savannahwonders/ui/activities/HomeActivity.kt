@@ -78,7 +78,9 @@ import com.example.savannahwonders.ui.navigation.NavGraphDestinations
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
 import com.example.savannahwonders.ui.viewmodels.AuthViewModel
 import com.example.savannahwonders.ui.viewmodels.DestinationScreenViewModel
+import com.example.savannahwonders.ui.viewmodels.FavoriteScreenViewModel
 import com.example.savannahwonders.ui.viewmodels.HomeScreenViewModel
+import com.example.savannahwonders.ui.viewmodels.SearchScreenViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
@@ -100,9 +102,6 @@ class HomeActivity : ComponentActivity() {
                 ) {
                     SavannahWondersApp(
                         navHostController = rememberNavController(),
-                        onMapsClick = {
-                            startActivity(Intent(this, MapsActivity::class.java))
-                        },
                     )
                 }
             }
@@ -114,11 +113,12 @@ class HomeActivity : ComponentActivity() {
 @Composable
 fun SavannahWondersApp(
     navHostController: NavHostController,
-    onMapsClick: () -> Unit
 ) {
     val homeScreenViewModel: HomeScreenViewModel = viewModel()
     val destinationScreenViewModel: DestinationScreenViewModel = viewModel()
     val authViewModel: AuthViewModel = viewModel()
+    val favoriteScreenViewModel: FavoriteScreenViewModel = viewModel()
+    val searchScreenViewModel: SearchScreenViewModel = viewModel()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var isActive: Int by rememberSaveable {
@@ -136,7 +136,7 @@ fun SavannahWondersApp(
                     isActive = 1
                 },
                 onSearchClick = {
-                   TODO("ON SERARCH CLICK")
+                    navHostController.navigate(NavGraphDestinations.SEARCH.name)
                     isActive = 2
                 },
 
@@ -150,7 +150,9 @@ fun SavannahWondersApp(
             coroutineScope = scope,
             authViewModel = authViewModel,
             homeScreenViewModel = homeScreenViewModel,
-            destinationScreenViewModel = destinationScreenViewModel
+            destinationScreenViewModel = destinationScreenViewModel,
+            favoriteScreenViewModel = favoriteScreenViewModel,
+            searchScreenViewModel = searchScreenViewModel
         )
     }
 }
@@ -298,26 +300,20 @@ val menuItems: List<MenuItem> = listOf(
         icon = Icons.Default.Home,
         description = "Home Icon"
     ),
-    MenuItem(
-        id = 2,
-        title = "Settings",
-        icon = Icons.Default.Settings,
-        description = "Settings Icon"
-    ),
+//    MenuItem(
+//        id = 2,
+//        title = "Settings",
+//        icon = Icons.Default.Settings,
+//        description = "Settings Icon"
+//    ),
     MenuItem(
         id = 3,
-        title = "Map of Kenya",
-        icon = Icons.Sharp.Close,
-        description = "Logout Icon"
-    ),
-    MenuItem(
-        id = 4,
         title = "Favorites",
         icon = Icons.Default.Favorite,
         description = "Cart Icon"
     ),
     MenuItem(
-        id = 5,
+        id = 4,
         title = "Logout",
         icon = Icons.Sharp.Close,
         description = "Logout Icon"

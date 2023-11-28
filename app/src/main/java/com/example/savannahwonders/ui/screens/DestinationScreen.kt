@@ -215,6 +215,7 @@ fun DestinatioinScreen(
                 IconButton(
                     onClick = {
                         isFavorite = !isFavorite
+                        destinationScreenViewModel.addToFavorites()
                     }
                 ) {
                     Icon(
