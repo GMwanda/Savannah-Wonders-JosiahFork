@@ -47,18 +47,14 @@ fun AuthNavigation(
     NavHost(navController = navController, startDestination = NavGraphDestinations.LOGIN.name){
         composable(route = NavGraphDestinations.LOGIN.name){
             LoginScreen(
-                onBackClicked = { /*TODO*/ },
                 onDontHaveAccountClick = { navController.navigate(NavGraphDestinations.REGISTER.name) },
                 authViewModel = authViewModel,
-                onSuccessfulSignIn = { /*TODO*/ }
             )
         }
         composable(route = NavGraphDestinations.REGISTER.name){
             RegisterScreen(
                 onHaveAccountClick = { navController.navigate(NavGraphDestinations.LOGIN.name) },
-                onBackClick = { /*TODO*/ },
                 authViewModel = authViewModel,
-                onSuccessfulRegister = { /*TODO*/ }
             )
         }
     }

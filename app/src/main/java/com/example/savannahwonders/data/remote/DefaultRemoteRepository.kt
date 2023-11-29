@@ -21,7 +21,7 @@ class DefaultRemoteRepository @Inject constructor(private val firebaseDatabase: 
     override suspend fun getAllDestinations(): List<DestinationModel> {
         return suspendCoroutine { continuation: Continuation<List<DestinationModel>> ->
             var destinationModelMutableList: MutableList<DestinationModel> = mutableListOf()
-            destinationsRef.limitToFirst(6).addValueEventListener(object: ValueEventListener {
+            destinationsRef.limitToFirst(20).addValueEventListener(object: ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (snap in snapshot.children) {
 //                        println(snap.child("Name").getValue(String::class.java))
@@ -71,6 +71,11 @@ class DefaultRemoteRepository @Inject constructor(private val firebaseDatabase: 
             }
         }
         return favoriteDestinationList
+    }
+
+    override suspend fun removeFromFavorites(destinationModel: DestinationModel) {
+        val id = "${destinationModel.placeID}$userId"
+        favoritesRef.child(id).removeValue()
     }
 
     override suspend fun addToFavorites(destinationModel: DestinationModel) {

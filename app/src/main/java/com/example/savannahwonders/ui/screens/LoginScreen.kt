@@ -1,6 +1,7 @@
 package com.example.savannahwonders.ui.screens
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -58,7 +59,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.savannahwonders.MainActivity
 import com.example.savannahwonders.R
+import com.example.savannahwonders.ui.activities.HomeActivity
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
 import com.example.savannahwonders.ui.viewmodels.AuthViewModel
 import kotlinx.coroutines.launch
@@ -67,11 +70,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun LoginScreen(
-    modifier: Modifier = Modifier,
-    onBackClicked: () -> Unit,
     onDontHaveAccountClick: () -> Unit,
     authViewModel: AuthViewModel,
-    onSuccessfulSignIn: () -> Unit
 ) {
     var email: String by rememberSaveable {
         mutableStateOf("")
@@ -93,7 +93,7 @@ fun LoginScreen(
         topBar = {
             LoginScreenTopBar(
                 onBackClicked = {
-                    onBackClicked()
+                    context.startActivity(Intent(context, MainActivity::class.java))
                 }
             )
         },
@@ -246,7 +246,7 @@ fun LoginScreen(
                         val success = state.value?.isSuccess
                         Toast.makeText(context, "${success}", Toast.LENGTH_LONG).show()
                         println("SUCCESS MESSAGE $success")
-                        onSuccessfulSignIn()
+                        context.startActivity(Intent(context, HomeActivity::class.java))
                     }
                 }
             }
@@ -256,7 +256,6 @@ fun LoginScreen(
                         val error = state.value?.isError
                         Toast.makeText(context, "${error}", Toast.LENGTH_LONG).show()
                         println("Error MESSAGE $error")
-//                        onSuccessfulSignIn()
                         isInvalidCredentials = true
                     }
                 }

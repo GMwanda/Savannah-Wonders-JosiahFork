@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
@@ -71,8 +72,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.savannahwonders.MainActivity
-import com.example.savannahwonders.data.temp.Destination
-import com.example.savannahwonders.data.temp.TempData
 import com.example.savannahwonders.ui.navigation.NavGraph
 import com.example.savannahwonders.ui.navigation.NavGraphDestinations
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
@@ -315,7 +314,7 @@ val menuItems: List<MenuItem> = listOf(
     MenuItem(
         id = 4,
         title = "Logout",
-        icon = Icons.Sharp.Close,
+        icon = Icons.Filled.ExitToApp,
         description = "Logout Icon"
     )
 )

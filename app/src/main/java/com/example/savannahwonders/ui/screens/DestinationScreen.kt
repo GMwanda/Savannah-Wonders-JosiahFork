@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -80,7 +81,7 @@ fun DestinatioinScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Favoirtes",
+                        text = "${destinationScreenViewModel.destinationScreenUiState.collectAsState().value.name}",
                         fontSize = 17.sp,
                         modifier = Modifier
                             .padding(top = 8.dp)
@@ -170,7 +171,7 @@ fun DestinatioinScreen(
                         AsyncImage(
                             model = destinationImages[page],
                             contentDescription = "Images",
-                            contentScale = ContentScale.Fit
+                            contentScale = ContentScale.FillBounds
                         )
                     }
                 }
@@ -194,7 +195,6 @@ fun DestinatioinScreen(
                                 .clip(CircleShape)
                                 .background(color)
                                 .size(8.dp)
-
                         )
                     }
                 }
@@ -258,10 +258,13 @@ fun DestinatioinScreen(
             Text(
                 text = "View In Map >",
                 fontWeight = FontWeight.Light,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .clickable {
                         isViewMap = !isViewMap
                     }
+                    .fillMaxWidth()
             )
             var longitude = uiState.value.location?.longitude?.toDouble()
             var latitude = uiState.value.location?.latitude?.toDouble()
