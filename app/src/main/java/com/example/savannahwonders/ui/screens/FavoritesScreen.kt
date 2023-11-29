@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,8 +42,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.savannahwonders.data.model.DestinationModel
-import com.example.savannahwonders.data.temp.Destination
-import com.example.savannahwonders.data.temp.TempData
 import com.example.savannahwonders.ui.navigation.NavGraphDestinations
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
 import com.example.savannahwonders.ui.viewmodels.DestinationScreenViewModel
@@ -64,7 +63,7 @@ fun FavoritesScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Favoirtes",
+                        text = "Favorites",
                         fontSize = 17.sp,
                         modifier = Modifier
                             .padding(top = 8.dp)
@@ -97,53 +96,73 @@ fun FavoritesScreen(
                 .fillMaxSize()
                 .padding(top = 50.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 50.dp)
-            ) {
-                items(uiState.value){ item ->
-                    Surface(
-                        tonalElevation = 2.dp,
-                        shape = RoundedCornerShape(20.dp),
-                        shadowElevation = 10.dp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(130.dp)
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .clickable {
-                                destinationScreenViewModel.selectDestination(item)
-                                navHostController.navigate(NavGraphDestinations.DESTINATION.name)
-                            }
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            AsyncImage(
-                                model = item.mainImage?.let { it },
-                                contentDescription = "Image",
-                                modifier = Modifier
-                                    .size(180.dp),
-                                contentScale = ContentScale.FillBounds
-                            )
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                            ) {
-                                item.name?.let { it1 ->
-                                    Text(
-                                        text = it1,
-                                        fontSize = 20.sp,
-                                    )
+            if (uiState.value.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 50.dp)
+                ) {
+                    items(uiState.value) { item ->
+                        Surface(
+                            tonalElevation = 2.dp,
+                            shape = RoundedCornerShape(20.dp),
+                            shadowElevation = 10.dp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(130.dp)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .clickable {
+                                    destinationScreenViewModel.selectDestination(item)
+                                    navHostController.navigate(NavGraphDestinations.DESTINATION.name)
                                 }
-                                Spacer(modifier = Modifier.height(16.dp))
-                                item.description?.let { it1 -> Text(text = it1) }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                AsyncImage(
+                                    model = item.mainImage?.let { it },
+                                    contentDescription = "Image",
+                                    modifier = Modifier
+                                        .size(180.dp),
+                                    contentScale = ContentScale.FillBounds
+                                )
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                ) {
+                                    item.name?.let { it1 ->
+                                        Text(
+                                            text = it1,
+                                            fontSize = 17.sp,
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = {
+                                            favoriteScreenViewModel.removeFromFavorites(item)
+                                        },
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Remove From favorites"
+                                        )
+                                    }
+                                }
+
                             }
                         }
                     }
                 }
+            } else {
+                Text(
+                    text = "No destinations found :(",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(top = 70.dp)
+                        .fillMaxWidth()
+                )
             }
         }
     }

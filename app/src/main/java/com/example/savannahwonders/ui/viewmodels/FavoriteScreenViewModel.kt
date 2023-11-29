@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.savannahwonders.data.model.DestinationModel
 import com.example.savannahwonders.data.remote.RemoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -29,6 +30,12 @@ class FavoriteScreenViewModel @Inject constructor(
                 e.message?.let { Log.e("GET FAVORITES ERROR", it) }
             }
 
+        }
+    }
+    fun removeFromFavorites(destinationModel: DestinationModel){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.removeFromFavorites(destinationModel)
+            getFavorites()
         }
     }
 }
