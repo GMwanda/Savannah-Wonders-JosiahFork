@@ -1,14 +1,8 @@
-package com.example.savannahwonders.ui.activities
+package com.example.savannahwonders.ui.screens
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.BlurMaskFilter
-import android.graphics.Typeface.NORMAL
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -52,12 +46,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -66,59 +56,22 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.savannahwonders.MainActivity
 import com.example.savannahwonders.R
+import com.example.savannahwonders.ui.activities.HomeActivity
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
-import com.example.savannahwonders.ui.viewmodels.RegisterViewModel
-import com.example.savannahwonders.ui.viewmodels.SignInViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import com.example.savannahwonders.ui.viewmodels.AuthViewModel
 import kotlinx.coroutines.launch
-
-@AndroidEntryPoint
-class LoginActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val signInViewModel: SignInViewModel by viewModels()
-            SavannahWondersTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    LoginScreen(
-                        onBackClicked = {
-                            finish()
-                        },
-                        onDontHaveAccountClick = {
-                            startActivity(Intent(this, RegisterActivity::class.java))
-                        },
-                        signInViewModel = signInViewModel,
-                        onSuccessfulSignIn = {
-                            startActivity(Intent(this, HomeActivity::class.java))
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun LoginScreen(
-    modifier: Modifier = Modifier,
-    onBackClicked: () -> Unit,
-    onDontHaveAccountClick: ()->Unit,
-    signInViewModel: SignInViewModel,
-    onSuccessfulSignIn: ()->Unit
+    onDontHaveAccountClick: () -> Unit,
+    authViewModel: AuthViewModel,
 ) {
     var email: String by rememberSaveable {
         mutableStateOf("")
@@ -134,13 +87,13 @@ fun LoginScreen(
     }
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
-    val state = signInViewModel.signInState.collectAsState(initial = null)
+    val state = authViewModel.signInState.collectAsState(initial = null)
     val context = LocalContext.current
     Scaffold(
         topBar = {
             LoginScreenTopBar(
                 onBackClicked = {
-                    onBackClicked()
+                    context.startActivity(Intent(context, MainActivity::class.java))
                 }
             )
         },
@@ -175,7 +128,10 @@ fun LoginScreen(
                             Text(text = "Email Address")
                         },
                         leadingIcon = {
-                            Icon(painter = painterResource(id = R.drawable.icons8_mail_48___), contentDescription = "email icon")
+                            Icon(
+                                painter = painterResource(id = R.drawable.icons8_mail_48___),
+                                contentDescription = "email icon"
+                            )
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
@@ -192,7 +148,7 @@ fun LoginScreen(
                         },
                         trailingIcon = {
                             Text(
-                                text = if(isShowPassword)"Hide" else "Show",
+                                text = if (isShowPassword) "Hide" else "Show",
                                 modifier = Modifier
                                     .clickable {
                                         isShowPassword = !isShowPassword
@@ -203,7 +159,10 @@ fun LoginScreen(
                             )
                         },
                         leadingIcon = {
-                            Icon(painter = painterResource(id = R.drawable.icons8_password_45___), contentDescription = "password icon")
+                            Icon(
+                                painter = painterResource(id = R.drawable.icons8_password_45___),
+                                contentDescription = "password icon"
+                            )
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password,
@@ -213,17 +172,22 @@ fun LoginScreen(
                             onDone = {
                                 keyboardController?.hide()
                                 scope.launch {
-                                    signInViewModel.loginUser(email, password)
+                                    authViewModel.loginUser(email, password)
                                 }
                             }
                         ),
-                        visualTransformation = if(isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        visualTransformation = if (isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         shape = RoundedCornerShape(15.dp)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     AnimatedVisibility(
                         visible = isInvalidCredentials,
-                        enter = slideInVertically(spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessLow))
+                        enter = slideInVertically(
+                            spring(
+                                dampingRatio = Spring.DampingRatioHighBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        )
                     ) {
                         Text(
                             text = "Invalid credentials",
@@ -249,7 +213,7 @@ fun LoginScreen(
                     Button(
                         onClick = {
                             scope.launch {
-                                signInViewModel.loginUser(email, password)
+                                authViewModel.loginUser(email, password)
                             }
                         },
                         modifier = Modifier
@@ -276,23 +240,22 @@ fun LoginScreen(
                     }
                 }
             }
-            LaunchedEffect(key1 = state.value?.isSuccess){
+            LaunchedEffect(key1 = state.value?.isSuccess) {
                 scope.launch {
-                    if(state.value?.isSuccess?.isNotEmpty() == true){
+                    if (state.value?.isSuccess?.isNotEmpty() == true) {
                         val success = state.value?.isSuccess
                         Toast.makeText(context, "${success}", Toast.LENGTH_LONG).show()
                         println("SUCCESS MESSAGE $success")
-                        onSuccessfulSignIn()
+                        context.startActivity(Intent(context, HomeActivity::class.java))
                     }
                 }
             }
-            LaunchedEffect(key1 = state.value?.isError){
+            LaunchedEffect(key1 = state.value?.isError) {
                 scope.launch {
-                    if(state.value?.isError?.isNotEmpty() == true){
+                    if (state.value?.isError?.isNotEmpty() == true) {
                         val error = state.value?.isError
                         Toast.makeText(context, "${error}", Toast.LENGTH_LONG).show()
                         println("Error MESSAGE $error")
-//                        onSuccessfulSignIn()
                         isInvalidCredentials = true
                     }
                 }
@@ -304,8 +267,8 @@ fun LoginScreen(
 
 @Composable
 fun LoginScreenTopBar(
-    modifier:Modifier = Modifier,
-    onBackClicked: ()->Unit
+    modifier: Modifier = Modifier,
+    onBackClicked: () -> Unit
 ) {
     Surface(
         shadowElevation = 4.dp,
@@ -328,7 +291,6 @@ fun LoginScreenTopBar(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
 fun LoginPreview() {
     SavannahWondersTheme {

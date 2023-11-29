@@ -1,17 +1,11 @@
-package com.example.savannahwonders.ui.activities
+package com.example.savannahwonders.ui.screens
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -65,51 +59,19 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.savannahwonders.MainActivity
 import com.example.savannahwonders.R
+import com.example.savannahwonders.ui.activities.HomeActivity
 import com.example.savannahwonders.ui.theme.SavannahWondersTheme
-import com.example.savannahwonders.ui.viewmodels.RegisterViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import com.example.savannahwonders.ui.viewmodels.AuthViewModel
 import kotlinx.coroutines.launch
-
-@AndroidEntryPoint
-class RegisterActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            SavannahWondersTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    val registerViewModel: RegisterViewModel by viewModels()
-                    RegisterScreen(
-                        onHaveAccountClick = {
-                            startActivity(Intent(this, LoginActivity::class.java))
-                        },
-                        onBackClick = {
-                            finish()
-                        },
-                        registerViewModel = registerViewModel,
-                        onSuccessfulRegister = {
-                            startActivity(Intent(this, HomeActivity::class.java))
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun RegisterScreen(
-    modifier: Modifier = Modifier,
     onHaveAccountClick: () -> Unit,
-    onBackClick: () -> Unit,
-    registerViewModel: RegisterViewModel,
-    onSuccessfulRegister: ()->Unit
+    authViewModel: AuthViewModel,
 ) {
     var name: String by rememberSaveable {
         mutableStateOf("")
@@ -131,12 +93,14 @@ fun RegisterScreen(
         mutableStateOf(false)
     }
     val scope = rememberCoroutineScope()
-    val state = registerViewModel.registerState.collectAsState(initial = null)
+    val state = authViewModel.registerState.collectAsState(initial = null)
     val context = LocalContext.current
     Scaffold(
         topBar = {
             RegistrationScreenTopBar(
-                onBackClick = onBackClick
+                onBackClick = {
+                    context.startActivity(Intent(context, MainActivity::class.java))
+                }
             )
         }
     ) {
@@ -243,7 +207,7 @@ fun RegisterScreen(
                                 isPasswordMatch = password == confirm_password
                                 keyboardController?.hide()
                                 scope.launch {
-                                    registerViewModel.registerUser(email, password, name)
+                                    authViewModel.registerUser(email, password, name)
                                 }
                             }
                         ),
@@ -285,7 +249,7 @@ fun RegisterScreen(
                     Button(
                         onClick = {
                              scope.launch {
-                                 registerViewModel.registerUser(email, password, name)
+                                 authViewModel.registerUser(email, password, name)
                              }
                         },
                         modifier = Modifier
@@ -316,7 +280,7 @@ fun RegisterScreen(
                         val success = state.value?.isSuccess
                         Toast.makeText(context, "${success}", Toast.LENGTH_LONG).show()
                         println("SUCCESS MESSAGE $success")
-                        onSuccessfulRegister()
+                        context.startActivity(Intent(context, HomeActivity::class.java))
                     }
                 }
             }
@@ -332,8 +296,6 @@ fun RegisterScreen(
         }
 
     }
-
-
 }
 @Composable
 fun RegistrationScreenTopBar(

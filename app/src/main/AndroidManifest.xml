@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:name=".SWApplication"
         android:allowBackup="true"
@@ -14,24 +18,18 @@
         android:theme="@style/Theme.SavannahWonders"
         tools:targetApi="31">
         <activity
-            android:name=".ui.activities.FavoritesActivity"
+            android:name=".ui.activities.AuthActivity"
             android:exported="false"
-            android:label="@string/title_activity_favorites"
+            android:label="@string/title_activity_auth"
             android:theme="@style/Theme.SavannahWonders" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
         <activity
             android:name=".ui.activities.HomeActivity"
             android:exported="false"
             android:label="@string/title_activity_home"
-            android:theme="@style/Theme.SavannahWonders" />
-        <activity
-            android:name=".ui.activities.RegisterActivity"
-            android:exported="false"
-            android:label="@string/title_activity_register"
-            android:theme="@style/Theme.SavannahWonders" />
-        <activity
-            android:name=".ui.activities.LoginActivity"
-            android:exported="false"
-            android:label="@string/title_activity_login"
             android:theme="@style/Theme.SavannahWonders" />
         <activity
             android:name=".MainActivity"
